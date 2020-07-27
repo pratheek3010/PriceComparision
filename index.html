@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"> </script>
+    <title>comparison tool</title>
+</head>
+
+<body>
+    <div class='jumbotron jumbotron-fluid shadow-lg' style='background-color: rgb(150, 73, 150);margin-bottom: 0.1em;''>
+        <p style="text-align: center;font-family: sans-serif;font-weight:900;font-size:2rem;">COMPARISON TOOL</p>
+    </div>
+
+    <div class='container-fluid shadow-lg' style="background-color: rgb(202, 86, 202); margin-top: 0;padding: 0.8rem;">
+        <div class="border">
+            <p style="margin:1rem ;margin-bottom:0.5rem;font-size:1.2rem; font-weight: bold;font-family: sans-serif;">select the device</p>  
+            <select id='device' style="margin:0.5rem; border-radius: 1rem;width:10rem;" onclick="handleOption(this.value)">
+            <option value="none" selected disabled>choose option</option>
+            <option value='keyboard'>keyboard</option>
+            <option value="mouse">mouse</option>
+            <option value="pendrive">pendrive</option>
+            <option value="disk">external hard disk
+            </option>
+           <option value="router">router</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class='container-fluid shadow-lg' style="background-color: rgb(238, 130, 238); margin-top: 0;padding: 0.8rem;">
+        <div class='border'>
+            <p style="margin:1rem ;margin-bottom:0.5rem;font-size:1.2rem; font-weight: bold;font-family: sans-serif;">select the company</p> 
+            <select id='company' style="margin:0.5rem; border-radius: 1rem;width:10rem">
+                <option disabled selected id='none' value="none">choose option</option>
+            </select>
+        </div>
+
+        <div style="margin-top:0.5rem;">
+            <button type="button" class="btn btn-dark" onclick="handleClick()">Enter</button>
+            <input type="text" id="mysearch" placeholder="search">
+        </div>
+    </div>
+
+    <div>
+        <table class="table table-sm table-striped table-bordered table-hover">
+            <thead class="thead-dark">
+            <tr>
+                <th>Product</th>
+                <th>Lowest Price</th>
+            </tr>
+            </thead>
+            <tbody id="product_list">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+
+        var keyboard=new Array("Logitech","HP","Dell","Tag","Zebronincs","Iball")
+        var mouse=new Array("Logitech","HP","Dell","Tag","Zebronincs")
+        var pendrive=new Array("Sandisk","HP","Kingston")
+        var router=new Array("TP-link","D-Link")
+        var ext_hard=new Array("Transcend","Seagate","Sony")
+        var search,mydata,count=0
+        
+        function handleOption(x){
+            var y=new Array()
+            z=document.getElementById("company")
+            if(z.length>0){
+                for(var i=z.length ; i>=0;i--){
+                    z.remove(i)
+                }
+            }
+            if(x=="keyboard"){
+                product="keyboard"
+                 Array.prototype.push.apply(y,keyboard)
+            }
+            else if(x=="mouse"){
+                product="mouse"
+                Array.prototype.push.apply(y,mouse)
+            }
+            else if(x=="pendrive"){
+                product="pendrive"
+                Array.prototype.push.apply(y,pendrive)
+            }
+            else if(x=="router"){
+                product="router"
+                Array.prototype.push.apply(y,router)
+            }
+            else if(x=="disk"){
+                product="disk"
+                Array.prototype.push.apply(y,ext_hard)
+            }
+
+            for(var i=0 ; i<y.length;i++){
+                var myOption=document.createElement("option")
+                myOption.text=y[i]
+                myOption.value=y[i]
+                z.appendChild(myOption)
+            }
+        }
+
+        //data of all products
+        fetch(" https://api.npoint.io/832ee58a927b7c166cdc")
+            .then(resp=>{
+                return resp.json()
+            }).then(data=>{
+                mydata=data
+            })
+        
+        
+        function handleClick(){
+            search=(document.getElementById("company").value+"_"+document.getElementById("device").value)
+            
+            var table=document.getElementById("product_list")
+            
+            for(var i=0 ;i<mydata[search]['product_name'].length;i++){
+                var product=[];
+                var price=[]
+                product.push(mydata[search]['product_name'][i])
+                price.push(mydata[search]['product_price'][i])
+                var tr=document.createElement("tr")
+                var td1=document.createElement("td")
+                var td2=document.createElement("td")
+                td1.textContent=product
+                td2.textContent=price
+                tr.appendChild(td1)
+                tr.appendChild(td2)
+                table.appendChild(tr)
+                count+=1
+            }
+        }
+
+        var search=document.getElementById("mysearch")
+        search.addEventListener("keyup",function(e){
+                var search_item= e.target.value.toLowerCase()
+                var table=document.getElementById("product_list")
+                var tr=document.getElementsByTagName('tr')
+                for(var i=1 ; i<=count;i++){
+                    var value=tr.rows.
+                    }
+            })
+
+    </script>
+   
+</body>
+</html>
